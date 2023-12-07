@@ -1,4 +1,3 @@
-
 """
 transform and load function
 """
@@ -6,14 +5,17 @@ transform and load function
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import monotonically_increasing_id
 
-def load(dataset="dbfs:/FileStore/databricks_project/games.csv", 
-         dataset2="dbfs:/FileStore/databricks_project/players.csv",
-         dataset3="dbfs:/FileStore/databricks_project/plays.csv",
-         dataset4="dbfs:/FileStore/databricks_project/tackles.csv",
-         dataset5="dbfs:/FileStore/databricks_project/La_vs_buf.csv"):
+
+def load(
+    dataset="dbfs:/FileStore/databricks_project/games.csv",
+    dataset2="dbfs:/FileStore/databricks_project/players.csv",
+    dataset3="dbfs:/FileStore/databricks_project/plays.csv",
+    dataset4="dbfs:/FileStore/databricks_project/tackles.csv",
+    dataset5="dbfs:/FileStore/databricks_project/La_vs_buf.csv",
+):
     spark = SparkSession.builder.appName("Read CSV").getOrCreate()
 
-    # load csv and transform it by inferring schema 
+    # load csv and transform it by inferring schema
     games_df = spark.read.csv(dataset, header=True, inferSchema=True)
     players_df = spark.read.csv(dataset2, header=True, inferSchema=True)
     plays_df = spark.read.csv(dataset3, header=True, inferSchema=True)
@@ -28,12 +30,14 @@ def load(dataset="dbfs:/FileStore/databricks_project/games.csv",
     tackles_df = tackles_df.withColumn("id", monotonically_increasing_id())
     La_vs_buf_df = La_vs_buf_df.withColumn("id", monotonically_increasing_id())
 
-    # transform into a delta lakes table and store it 
+    # transform into a delta lakes table and store it
     games_df.write.format("delta").mode("overwrite").saveAsTable("nfl_games_2022")
     players_df.write.format("delta").mode("overwrite").saveAsTable("nfl_players_2022")
     plays_df.write.format("delta").mode("overwrite").saveAsTable("nflplays")
     tackles_df.write.format("delta").mode("overwrite").saveAsTable("nfl_tackles_2022")
-    La_vs_buf_df.write.format("delta").mode("overwrite").saveAsTable("nfl_La_vs_buf_2022")
+    La_vs_buf_df.write.format("delta").mode("overwrite").saveAsTable(
+        "nfl_La_vs_buf_2022"
+    )
 
     # print(games_df.columns)
     # print(players_df.columns)
@@ -53,6 +57,7 @@ def load(dataset="dbfs:/FileStore/databricks_project/games.csv",
     # print(num_rows)
 
     return "finished transform and load"
+
 
 if __name__ == "__main__":
     load()

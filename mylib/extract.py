@@ -48,30 +48,39 @@ def close(handle, headers):
     _data["handle"] = handle
     return perform_query("/dbfs/close", headers=headers, data=_data)
 
+
 def put_file_from_local(file_path, dbfs_path, overwrite, headers):
     with open(file_path, "rb") as file:
         content = file.read()
         handle = create(dbfs_path, overwrite, headers=headers)["handle"]
         print("Putting file: " + dbfs_path)
-        for i in range(0, len(content), 2 ** 20):
+        for i in range(0, len(content), 2**20):
             add_block(
                 handle,
-                base64.standard_b64encode(content[i : i + 2 ** 20]).decode(),
+                base64.standard_b64encode(content[i : i + 2**20]).decode(),
                 headers=headers,
             )
         close(handle, headers=headers)
         print(f"File {dbfs_path} uploaded successfully.")
 
+
 def extract_local_files(src_folder, dest_folder, overwrite=True):
-    files_to_extract = ["games.csv", "plays.csv", "tackles.csv", "players.csv", "La_vs_buf.csv"]
+    files_to_extract = [
+        "games.csv",
+        "plays.csv",
+        "tackles.csv",
+        "players.csv",
+        "La_vs_buf.csv",
+    ]
 
     for file_name in files_to_extract:
         local_file_path = os.path.join(src_folder, file_name)
         dbfs_file_path = os.path.join(dest_folder, file_name)
-        
+
         put_file_from_local(local_file_path, dbfs_file_path, overwrite, headers=headers)
 
     return dest_folder
+
 
 if __name__ == "__main__":
     src_folder = "../src"  # Update the path accordingly

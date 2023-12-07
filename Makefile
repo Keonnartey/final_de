@@ -5,13 +5,15 @@ test:
 	python -m pytest -vv --cov=main --cov=mylib test_*.py
 
 format:
-	black *.py mylib/*.ipynb 
+	find . -name "*.py" -not -path "./venv/*" -exec black {} + && \
+	find . -name "*.ipynb" -exec black {} +
+
 
 lint:
 	# Disable comment to test speed
 	# pylint --disable=R,C --ignore-patterns=test_.*?py *.py mylib/*.py
 	# Ruff linting is 10-100X faster than pylint
-	ruff check mylib/*.ipynb
+	find mylib -name "*.py" -exec ruff check {} +
 
 container-lint:
 	docker run --rm -i hadolint/hadolint < Dockerfile
